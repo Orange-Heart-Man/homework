@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1">
+    <!-- Google Chrome Frame也可以让IE用上Chrome的引擎: -->
+    <meta name="renderer" content="webkit">
+    <!--国产浏览器高速模式-->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="goods_update.html"/>
+    <!-- 作者 -->
+    <meta name="revised" content="goods_update.html"/>
+    <!-- 定义页面的最新版本 -->
+    <meta name="description" content="网站简介"/>
+    <!-- 网站简介 -->
+    <meta name="keywords" content="搜索关键字，以半角英文逗号隔开"/>
+    <title>goods_update.html</title>
+
+    <!-- 公共样式 开始 -->
+    <link rel="stylesheet" type="text/css" href="../../css/base.css">
+    <link rel="stylesheet" type="text/css" href="../../css/iconfont.css">
+    <script type="text/javascript" src="../../framework/jquery-1.11.3.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../layui/css/layui.css">
+    <script type="text/javascript" src="../../layui/layui.js"></script>
+    <!-- 滚动条插件 -->
+    <link rel="stylesheet" type="text/css" href="../../css/jquery.mCustomScrollbar.css">
+    <script src="../../framework/jquery-ui-1.10.4.min.js"></script>
+    <script src="../../framework/jquery.mousewheel.min.js"></script>
+    <script src="../../framework/jquery.mCustomScrollbar.min.js"></script>
+    <script src="../../framework/cframe.js"></script><!-- 仅供所有子页面使用 -->
+    <!-- 公共样式 结束 -->
+
+    <style>
+        .layui-form-label {
+            width: 100px;
+        }
+
+        .layui-input-block {
+            margin-left: 130px;
+        }
+
+        #container {
+            width: 100%;
+            height: 500px;
+            margin: auto;
+        }
+    </style>
+
+</head>
+
+<body>
+<div class="cBody">
+    <form id="adMForm" class="layui-form">
+        <div class="layui-form-item">
+            <label class="layui-form-label">房源图片</label>
+            <div class="layui-input-block">
+                <img style="width: 100%" id="poster" src="">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">小区名称</label>
+            <div class="layui-input-block">
+                <input type="text" name="housePlot" id="housePlot" required autocomplete="off" class="layui-input"
+                       readonly>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">房屋描述</label>
+            <div class="layui-input-block">
+                <input type="text" name="houseDesc" id="houseDesc" required autocomplete="off" class="layui-input"
+                       readonly>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">房屋面积</label>
+            <div class="layui-input-block">
+                <input type="text" name="houseArea" id="houseArea" required autocomplete="off" class="layui-input"
+                       readonly>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">房屋楼层</label>
+            <div class="layui-input-block">
+                <input type="text" name="houseFloor" id="houseFloor" required autocomplete="off" class="layui-input"
+                       readonly>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">房屋类型</label>
+            <div class="layui-input-block">
+                <input type="text" name="houseType" id="houseType" required autocomplete="off" class="layui-input"
+                       readonly>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">房屋价格</label>
+            <div class="layui-input-block">
+                <input type="text" name="housePrice" id="housePrice" required autocomplete="off" class="layui-input"
+                       readonly>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">房屋地址</label>
+            <div class="layui-input-block">
+                <input type="text" name="houseAddress" id="houseAddress" required autocomplete="off"
+                       class="layui-input" readonly>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">联系电话</label>
+            <div class="layui-input-block">
+                <input type="text" name="houseTel" id="houseTel" required autocomplete="off" class="layui-input"
+                       readonly>
+            </div>
+        </div>
+
+        <div id="container" style="margin: 0px 0px 50px;"></div>
+
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button type="button" id="bookBtn" onclick="book()" class="layui-btn">预定</button>
+                <button id="cancel" onclick="cancleUser()" type="button" class="layui-btn layui-btn-primary">关闭</button>
+            </div>
+        </div>
+    </form>
+
+
+    <script>
+        layui.use(['upload', 'form'], function () {
+            var form = layui.form;
+            var upload = layui.upload;
+            var layer = layui.layer;
+        });
+
+        function book() {
+            var movieid = parent.$("#movieId").val();
+
+            $.ajax({
+                type: "POST",//方法类型
+                dataType: "json",//预期服务器返回的数据类型
+                url: "/house/book/" + movieid,//url
+                success: function (result) {
+                    layer.closeAll();
+
+                    layer.msg("已预定");
+                }
+            })
+        }
+
+        function cancleUser() {
+            var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+            parent.layer.close(index); //再执行关闭
+        }
+    </script>
+
+
+    <!--三、引入高德地图的js-->
+    <script type="text/javascript">
+        window._AMapSecurityConfig = {
+            securityJsCode: '102b14e1cd5e88a3c1fe9890f8dcee42',
+        }
+    </script>
+    <script type="text/javascript"
+            src="https://webapi.amap.com/maps?v=1.4.8&key=a08e2f54849139279dd7c960d42a5ea3&plugin=AMap.Geocoder,AMap.Autocomplete,AMap.PlaceSearch"></script>
+    <script type="text/javascript" src="https://cache.amap.com/lbs/static/addToolbar.js"></script>
+    <script type="text/javascript">
+        var map;
+
+        //初始化地图插件
+        window.onload = function () {
+            map = new AMap.Map("container", {
+                zoom: 15, //设置地图显示的缩放级别
+                center: [104.00, 30.56] //设置地图中心点坐标
+            });
+
+            initData();
+        }
+
+        function initData(){
+            var movieid = parent.$("#movieId").val();
+
+            $("#id").val(movieid);
+            $.ajax({
+                url: "/house/edit/" + movieid,
+                type: "get",
+                dataType: "json",
+                success: function (result) {
+                    if (result.code == 200) {
+                        $("#categoryId").val(result.data.categoryId);
+                        $("#houseDesc").val(result.data.houseDesc);
+                        $("#houseArea").val(result.data.houseArea);
+                        $("#houseFloor").val(result.data.houseFloor);
+                        $("#houseType").val(result.data.houseType);
+                        $("#housePrice").val(result.data.housePrice);
+                        $("#houseAddress").val(result.data.houseAddress);
+                        $("#housePlot").val(result.data.housePlot);
+                        $("#houseTel").val(result.data.houseTel);
+                        $("#longitude").val(result.data.longitude);
+                        $("#latitude").val(result.data.latitude);
+                        $("#poster").attr("src", result.data.poster);
+
+                        if (result.data.isBook == 1) {
+                            // 说明该房间已经被预定了
+                            $("#bookBtn").css("display", "none");
+                        }
+
+
+                        var x = result.data.longitude;
+                        var y = result.data.latitude;
+                        debugger
+                        // 创建一个 Marker 实例：（标记点）
+                        var marker = new AMap.Marker({
+                            position: new AMap.LngLat(x, y),
+                            title: result.data.housePlot
+                        });
+
+                        // 将创建的点标记添加到已有的地图实例：
+                        map.add(marker);
+                        layui.form.render();
+                    }
+                }
+            })
+        }
+    </script>
+
+</div>
+
+</body>
+
+</html>

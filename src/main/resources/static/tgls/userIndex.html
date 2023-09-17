@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1">
+
+	<!-- 公共样式 开始 -->
+	<link rel="stylesheet" type="text/css" href="../css/base.css">
+	<link rel="stylesheet" type="text/css" href="../css/iconfont.css">
+	<script type="text/javascript" src="../framework/jquery-1.11.3.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="../layui/css/layui.css">
+	<script type="text/javascript" src="../layui/layui.js"></script>
+	<!-- 滚动条插件 -->
+	<link rel="stylesheet" type="text/css" href="../css/jquery.mCustomScrollbar.css">
+	<script src="../framework/jquery-ui-1.10.4.min.js"></script>
+	<script src="../framework/jquery.mousewheel.min.js"></script>
+	<script src="../framework/jquery.mCustomScrollbar.min.js"></script>
+	<script src="../framework/cframe.js"></script><!-- 仅供所有子页面使用 -->
+	<!-- 公共样式 结束 -->
+
+	<style>
+		.layui-table img {
+			max-width: none;
+		}
+
+		#container{
+			width: 100%;
+			height: 700px;
+			margin: auto;
+			overflow: hidden;
+		}
+
+		.house_item{
+			width: 20%;
+			margin: 10px;
+			float: left;
+			border: 1px solid black;
+			border-radius: 10px;
+			padding: 10px;
+		}
+	</style>
+
+</head>
+
+<body>
+<div class="cBody">
+	<div class="console">
+		<div class="layui-form-item">
+			<div class="layui-input-inline">
+				<input type="text" name="housePlot" placeholder="输入小区名称" autocomplete="off" class="layui-input">
+			</div>
+			<div class="layui-input-inline">
+				<select id="categoryId" name="categoryId" class="layui-select">
+					<option value="">请选择房屋分类</option>
+				</select>
+			</div>
+			<div class="layui-input-inline">
+				<select id="houseArea" name="houseArea" class="layui-select">
+					<option value="0">请选择房屋面积</option>
+					<option value="1">50平方以下</option>
+					<option value="2">50-70平方</option>
+					<option value="3">70-110平方</option>
+					<option value="4">110-150平方</option>
+					<option value="5">150-200平方</option>
+					<option value="6">200平方以上</option>
+				</select>
+			</div>
+			<div class="layui-input-inline">
+				<select id="housePrice" name="housePrice" class="layui-select">
+					<option value="0">请选择房屋价格</option>
+					<option value="1">300元以下</option>
+					<option value="2">300-400</option>
+					<option value="3">400-600</option>
+					<option value="4">600-800</option>
+					<option value="5">800-1000</option>
+					<option value="6">1000元以上</option>
+				</select>
+			</div>
+			<button class="layui-btn" lay-submit lay-filter="formDemo">搜索</button>
+		</div>
+	</div>
+
+	<div id="container">
+
+	</div>
+
+	<form id="deleteMovieForm" method="get"></form>
+	<script>
+
+		layui.use('form', function () {
+			var form = layui.form;
+			//监听提交
+			form.on('submit(formDemo)', function (data) {
+				// 根据筛选条件筛选房源信息
+				loadProductData();
+			});
+		});
+
+		$(function (){
+			// 页面初始加载所有房源信息
+			loadProductData();
+
+			$.ajax({
+				url: "/category/listAll",
+				type: "get",
+				dataType: "json",
+				success: function (result) {
+					for (var i = 0; i < result.length; i++) {
+						$("#categoryId").append('<option value="' + result[i].id + '">' + result[i].name + '</option>')
+					}
+				}
+			})
+		});
+
+
+		function loadProductData() {
+
+			var housePlot = $("input[name='housePlot']").val();
+			var categoryId = $("select[name='categoryId']").val();
+			var houseArea = $("#houseArea").val();
+			var housePrice = $("#housePrice").val();
+
+			$("tbody").html("");
+
+			$.ajax({
+				type: "post",
+				url: "/house/list_lease",
+				dataType: "json",
+				data: {
+					"housePlot": housePlot,
+					"categoryId": categoryId,
+					"houseArea": houseArea,
+					"housePrice": housePrice
+				},
+				success: function (obj) {
+					var html = "";
+					var data = obj.result;
+					for (var i = 0; i < data.length; i++) {
+						html += '<div class="house_item" onclick="book('+data[i].id+')">' +
+								'<div><img style="width: 100%;height: 200px;" src="'+data[i].poster+'"></div>' +
+								'<div>' +
+								'<p style="font-size: 18px;font-weight: bold;">'+data[i].housePlot+'</p>' +
+								'<p>面积： <span>'+data[i].houseArea+'</span> 平方</p>' +
+								'<p>价格： <span>'+data[i].housePrice+'</span> 元</p>' +
+								'</div>' +
+								'</div>';
+					}
+
+					$("#container").html(html);
+				}
+			});
+
+		}
+
+		function book(id){
+			parent.$("#movieId").val(id);
+			layui.use('layer', function() {
+				var layer = layui.layer;
+				//iframe层-父子操作
+				updateFrame = parent.layer.open({
+					title: "租房",
+					type: 2,
+					area: ['50%', '80%'],
+					scrollbar: false,	//默认：true,默认允许浏览器滚动，如果设定scrollbar: false，则屏蔽
+					//maxmin: false,
+					content: '/tgls/house/house_book.html'
+				});
+			});
+		}
+	</script>
+</div>
+</body>
+
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1">
+		<!-- Google Chrome Frame也可以让IE用上Chrome的引擎: -->
+		<meta name="renderer" content="webkit">
+		<title>房屋租赁系统-登陆</title>
+
+		<!-- 公共样式 开始 -->
+		<link rel="stylesheet" type="text/css" th:href="@{/css/base.css}">
+		<link rel="stylesheet" type="text/css" th:href="@{/css/iconfont.css}">
+		<script type="text/javascript" th:src="@{/framework/jquery-1.11.3.min.js}"></script>
+		<link rel="stylesheet" type="text/css" th:href="@{layui/css/layui.css}">
+		<script type="text/javascript" th:src="@{/layui/layui.js}"></script>
+		<!-- 公共样式 结束 -->
+		
+		<link rel="stylesheet" type="text/css" th:href="@{/css/login1.css}">
+		<script type="text/javascript" th:src="@{/js/login1.js}"></script>
+	</head>
+
+	<body>
+		<div class="loginBg"></div>
+		<div class="login_main">
+			<div class="box">
+				<div class="right">
+					<form class="layui-form layui-form-pane" th:action="@{/login}" method="post">
+						<p style="color:red" th:text="${msg}" th:if="${not #strings.isEmpty(msg)}"></p>
+						<div class="layui-form-item">
+							<label class="layui-form-label login_title"><i class="iconfont icon-yonghu"></i></label>
+							<div class="layui-input-block login_input">
+								<input type="text" name="account" required lay-verify="required" autocomplete="off" placeholder="请输入用户名" value="mingli" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label login_title"><i class="iconfont icon-tubiao202"></i></label>
+							<div class="layui-input-block login_input">
+								<input type="password" name="password" required lay-verify="required" autocomplete="off" placeholder="请输入密码" value="123456" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label login_title"><i class="iconfont icon-tubiao202"></i></label>
+							<div class="layui-input-block login_input">
+								<select id="role" name="role" class="layui-select">
+									<option value="1">管理员</option>
+									<option value="2" selected>租客</option>
+									<option value="3">房东</option>
+								</select>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<button class="layui-btn layui-btn-fluid login_but" lay-submit lay-filter="loginBut">登 录</button>
+						</div>
+
+
+					</form>
+					<div class="layui-form-item">
+						<button class="layui-btn layui-btn-fluid" onclick="register()">注 册</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<script type="text/javascript">
+			layui.use('form', function() {
+				var form = layui.form;
+				//监听提交
+				form.on('submit(loginBut)', function(data) {
+
+					return true;
+				});
+
+			});
+
+			function register(){
+				location.href = "register";
+			}
+		</script>
+		
+	</body>
+
+</html>

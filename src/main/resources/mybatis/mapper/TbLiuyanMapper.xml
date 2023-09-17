@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.house.springboot.mapper.TbLiuyanMapper">
+    
+    <resultMap type="com.house.springboot.bean.TbLiuyan" id="TbLiuyanResult">
+        <result property="id"    column="id"    />
+        <result property="userid"    column="userid"    />
+        <result property="type"    column="type"    />
+        <result property="comment"    column="comment"    />
+        <result property="submitdate"    column="submitdate"    />
+    </resultMap>
+
+    <sql id="selectTbLiuyanVo">
+        select id, userid, type, comment, submitdate from tb_liuyan
+    </sql>
+
+    <select id="selectTbLiuyanList" parameterType="com.house.springboot.bean.TbLiuyan" resultMap="TbLiuyanResult">
+        <include refid="selectTbLiuyanVo"/>
+        <where>  
+            <if test="userid != null "> and userid = #{userid}</if>
+            <if test="type != null  and type != ''"> and type like concat('%', #{type}, '%')</if>
+        </where>
+    </select>
+    
+    <select id="selectTbLiuyanById" parameterType="Long" resultMap="TbLiuyanResult">
+        <include refid="selectTbLiuyanVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertTbLiuyan" parameterType="com.house.springboot.bean.TbLiuyan">
+        insert into tb_liuyan
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="userid != null">userid,</if>
+            <if test="type != null">type,</if>
+            <if test="comment != null">comment,</if>
+            <if test="submitdate != null">submitdate,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="userid != null">#{userid},</if>
+            <if test="type != null">#{type},</if>
+            <if test="comment != null">#{comment},</if>
+            <if test="submitdate != null">#{submitdate},</if>
+         </trim>
+    </insert>
+
+    <update id="updateTbLiuyan" parameterType="com.house.springboot.bean.TbLiuyan">
+        update tb_liuyan
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userid != null">userid = #{userid},</if>
+            <if test="type != null">type = #{type},</if>
+            <if test="comment != null">comment = #{comment},</if>
+            <if test="submitdate != null">submitdate = #{submitdate},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteTbLiuyanById" parameterType="Long">
+        delete from tb_liuyan where id = #{id}
+    </delete>
+
+</mapper>

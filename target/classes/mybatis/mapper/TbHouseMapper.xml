@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.house.springboot.mapper.TbHouseMapper">
+    
+    <resultMap type="com.house.springboot.bean.TbHouse" id="TbHouseResult">
+        <result property="id"    column="id"    />
+        <result property="houseDesc"    column="house_desc"    />
+        <result property="categoryId"    column="category_id"    />
+        <result property="houseArea"    column="house_area"    />
+        <result property="houseFloor"    column="house_floor"    />
+        <result property="houseType"    column="house_type"    />
+        <result property="housePrice"    column="house_price"    />
+        <result property="houseAddress"    column="house_address"    />
+        <result property="housePlot"    column="house_plot"    />
+        <result property="poster"    column="poster"    />
+        <result property="houseTel"    column="house_tel"    />
+        <result property="publisherId"    column="publisher_id"    />
+        <result property="publisherTime"    column="publisher_time"    />
+        <result property="longitude"    column="longitude"    />
+        <result property="latitude"    column="latitude"    />
+    </resultMap>
+
+    <sql id="selectTbHouseVo">
+        select id, house_desc, category_id, house_area, house_floor,poster,
+               house_type, house_price, house_address, house_plot, house_tel, publisher_id, publisher_time, longitude, latitude from tb_house
+    </sql>
+
+    <select id="selectTbHouseList" parameterType="com.house.springboot.bean.TbHouse" resultMap="TbHouseResult">
+        <include refid="selectTbHouseVo"/>
+        <where>  
+            <if test="categoryId != null "> and category_id = #{categoryId}</if>
+            <if test="housePlot != null  and housePlot != ''"> and house_plot like concat('%', #{housePlot}, '%')</if>
+            <if test="publisherId != null "> and publisher_id = #{publisherId}</if>
+            <if test="houseArea != null and houseArea != 0"> and house_area between #{houseAreaStart} and #{houseAreaEnd}</if>
+            <if test="housePrice != null and housePrice != 0 "> and house_price between #{housePriceStart} and #{housePriceEnd}</if>
+        </where>
+    </select>
+    
+    <select id="selectTbHouseById" parameterType="Long" resultMap="TbHouseResult">
+        <include refid="selectTbHouseVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertTbHouse" parameterType="com.house.springboot.bean.TbHouse" useGeneratedKeys="true" keyProperty="id">
+        insert into tb_house
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="houseDesc != null">house_desc,</if>
+            <if test="categoryId != null">category_id,</if>
+            <if test="houseArea != null">house_area,</if>
+            <if test="houseFloor != null">house_floor,</if>
+            <if test="houseType != null">house_type,</if>
+            <if test="housePrice != null">house_price,</if>
+            <if test="houseAddress != null">house_address,</if>
+            <if test="housePlot != null">house_plot,</if>
+            <if test="houseTel != null">house_tel,</if>
+            <if test="publisherId != null">publisher_id,</if>
+            <if test="longitude != null">longitude,</if>
+            <if test="latitude != null">latitude,</if>
+            <if test="poster != null">poster,</if>
+            publisher_time
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="houseDesc != null">#{houseDesc},</if>
+            <if test="categoryId != null">#{categoryId},</if>
+            <if test="houseArea != null">#{houseArea},</if>
+            <if test="houseFloor != null">#{houseFloor},</if>
+            <if test="houseType != null">#{houseType},</if>
+            <if test="housePrice != null">#{housePrice},</if>
+            <if test="houseAddress != null">#{houseAddress},</if>
+            <if test="housePlot != null">#{housePlot},</if>
+            <if test="houseTel != null">#{houseTel},</if>
+            <if test="publisherId != null">#{publisherId},</if>
+            <if test="longitude != null">#{longitude},</if>
+            <if test="latitude != null">#{latitude},</if>
+            <if test="poster != null">#{poster},</if>
+            sysdate()
+         </trim>
+    </insert>
+
+    <update id="updateTbHouse" parameterType="com.house.springboot.bean.TbHouse">
+        update tb_house
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="houseDesc != null">house_desc = #{houseDesc},</if>
+            <if test="categoryId != null">category_id = #{categoryId},</if>
+            <if test="houseArea != null">house_area = #{houseArea},</if>
+            <if test="houseFloor != null">house_floor = #{houseFloor},</if>
+            <if test="houseType != null">house_type = #{houseType},</if>
+            <if test="housePrice != null">house_price = #{housePrice},</if>
+            <if test="houseAddress != null">house_address = #{houseAddress},</if>
+            <if test="housePlot != null">house_plot = #{housePlot},</if>
+            <if test="houseTel != null">house_tel = #{houseTel},</if>
+            <if test="longitude != null">longitude = #{longitude},</if>
+            <if test="latitude != null">latitude = #{latitude},</if>
+            <if test="poster != null">poster = #{poster},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteTbHouseById" parameterType="Long">
+        delete from tb_house where id = #{id}
+    </delete>
+
+</mapper>

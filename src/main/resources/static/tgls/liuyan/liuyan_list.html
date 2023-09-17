@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1">
+
+		<!-- 公共样式 开始 -->
+		<link rel="stylesheet" type="text/css" href="../../css/base.css">
+		<link rel="stylesheet" type="text/css" href="../../css/iconfont.css">
+		<script type="text/javascript" src="../../framework/jquery-1.11.3.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="../../layui/css/layui.css">
+		<script type="text/javascript" src="../../layui/layui.js"></script>
+		<!-- 滚动条插件 -->
+		<link rel="stylesheet" type="text/css" href="../../css/jquery.mCustomScrollbar.css">
+		<script src="../../framework/jquery-ui-1.10.4.min.js"></script>
+		<script src="../../framework/jquery.mousewheel.min.js"></script>
+		<script src="../../framework/jquery.mCustomScrollbar.min.js"></script>
+		<script src="../../framework/cframe.js"></script><!-- 仅供所有子页面使用 -->
+		<!-- 公共样式 结束 -->
+		
+		<style>
+			.layui-table img {
+			    max-width: none;
+			}
+		</style>
+
+	</head>
+
+	<body>
+		<div class="cBody">
+			<div class="console">
+				<div class="layui-form-item">
+					<div class="layui-input-inline">
+						<input type="text" name="type" placeholder="输入分类" autocomplete="off" class="layui-input">
+					</div>
+					<button class="layui-btn" lay-submit lay-filter="formDemo">搜索</button>
+				</div>
+			</div>
+			
+			<table class="layui-table">
+				<thead>
+					<tr>
+						<th style="display: none;">编号</th>
+						<th>意见分类</th>
+						<th>意见</th>
+						<th>反馈时间</th>
+						<th>操作</th>
+					</tr>
+				</thead>
+				<tbody>
+				</tbody>
+			</table>
+			<form id="deleteMovieForm" method="get"></form>
+			<!-- layUI 分页模块 -->
+			<div id="pages"></div>
+			<script>
+
+				layui.use('form', function() {
+					var form = layui.form;
+
+					//监听提交
+					form.on('submit(formDemo)', function(data) {
+
+						loadProductData();
+					});
+				});
+
+				//删除按钮
+				function deleteIt(obj){
+					var movieid = $(obj).parents("tr").children("td").eq(0).text();
+					layer.open({
+						  type: 1, 
+						  resize: false,
+						  fixed: true,
+						  move: false,
+						  title: '警告：',
+						  btn: ['确定', '取消'],
+						  content: '确定要删除吗？', //这里content是一个普通的String
+						  yes: function(index, layero){
+							  $.ajax({
+								  type: "POST",//方法类型
+								  dataType: "json",//预期服务器返回的数据类型
+								  url: "/liuyan/remove/"+movieid ,//url
+								  success: function(result){
+									  layer.closeAll();
+
+									  layer.msg("已删除");
+
+									  loadProductData();
+								  }
+							  })
+						  }
+					});
+				}
+
+				var page = 1;
+
+				var limit = 10;
+
+				$(function(){
+					loadProductData();
+				});
+				
+				function loadProductData() {
+
+					var type = $("input[name='type']").val();
+
+					$("tbody").html("");
+
+					$.ajax({
+						type: "post",
+						url: "/liuyan/list",
+						dataType: "json",
+						data:{
+							"type" : type,
+							"page" : page,
+							"limit" : limit
+						},
+						success:function(obj){
+							var d = "<button onclick='deleteIt(this)' class='layui-btn layui-btn-xs'>删除</button>";
+							var html = "";
+							var data = obj.result;
+							for(var i=0;i<data.length;i++){
+								html += "<tr><td style='display: none;'>"+data[i].id+"</td><td>"+data[i].type+"</td><td>"+data[i].comment+"</td><td>"+data[i].submitdate+"</td><td>"+d+"</td></tr>";
+							};
+
+							$("tbody").append(html);
+
+							if(page == 1){
+								layui.use('laypage', function() {
+									var laypage = layui.laypage;
+									//总页数大于页码总数
+									laypage.render({
+										elem: 'pages'
+										,count: obj.total
+										,limit: limit
+										,layout: ['count', 'prev', 'page', 'next']
+										,jump: function(obj,first){
+											if(!first){
+
+												page = obj.curr;
+
+												loadProductData();
+											}
+										}
+									});
+								});
+							}
+						}
+					});
+
+				}
+			</script>
+		</div>
+	</body>
+
+</html>

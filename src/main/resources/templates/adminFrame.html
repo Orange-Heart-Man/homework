@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1">
+		<title>房屋租赁系统-首页</title>
+
+		<!-- 公共样式 开始 -->
+		<link rel="stylesheet" type="text/css" th:href="@{/css/base.css}">
+		<link rel="stylesheet" type="text/css" th:href="@{/css/iconfont.css}">
+		<script type="text/javascript" th:src="@{/framework/jquery-1.11.3.min.js}"></script>
+		<link rel="stylesheet" type="text/css" th:href="@{layui/css/layui.css}">
+		<script type="text/javascript" th:src="@{/layui/layui.js}"></script>
+		<!-- 公共样式 结束 -->
+		<!-- 滚动条插件 -->
+		<link rel="stylesheet" type="text/css" th:href="@{/css/jquery.mCustomScrollbar.css}">
+		<script th:src="@{/framework/jquery-ui-1.10.4.min.js}"></script>
+		<script th:src="@{/framework/jquery.mousewheel.min.js}"></script>
+		<script th:src="@{/framework/jquery.mCustomScrollbar.min.js}"></script>
+		<script th:src="@{/framework/cframe.js}"></script><!-- 仅供所有子页面使用 -->
+		
+		<link rel="stylesheet" type="text/css" th:href="@{/css/frameStyle.css}">
+		<script type="text/javascript" th:src="@{/framework/frame.js}" ></script>
+		
+	</head>
+
+	<body>
+		<!-- 左侧菜单 - 开始 -->
+		<div class="frameMenu">
+		    <div class="logo" onclick="menuCAClick('tgls/qdAPI.html')">
+		        <div class="logoText">
+		            <h1>房屋租赁系统 </h1>
+		        </div>
+		    </div>
+		    <div class="menu">
+		        <ul>
+		        	<li>
+		                <a class="menuFA" href="javascript:void(0)"><i class="iconfont icon-shangpin left"></i>用户信息列表<i class="iconfont icon-dajiantouyou right"></i></a>
+		                <dl>
+		                	<dt><a href="javascript:void(0)" onclick="menuCAClick('/tgls/user/user_list.html',this)">用户信息</a></dt>
+							<dt><a href="javascript:void(0)" onclick="menuCAClick('/tgls/user/user_add.html',this)">添加用户信息</a></dt>
+		                </dl>
+		            </li>
+
+					<li>
+						<a class="menuFA" href="javascript:void(0)"><i class="iconfont icon-shangpin left"></i>房屋信息管理<i class="iconfont icon-dajiantouyou right"></i></a>
+						<dl>
+							<dt><a href="javascript:void(0)" onclick="menuCAClick('/tgls/house/house_list.html',this)">房屋信息</a></dt>
+							<dt><a href="javascript:void(0)" onclick="menuCAClick('/tgls/house/house_add.html',this)">添加房屋信息</a></dt>
+						</dl>
+					</li>
+
+					<li>
+						<a class="menuFA" href="javascript:void(0)"><i class="iconfont icon-shangpin left"></i>留言箱<i class="iconfont icon-dajiantouyou right"></i></a>
+						<dl>
+							<dt><a href="javascript:void(0)" onclick="menuCAClick('/tgls/liuyan/liuyan_list.html',this)">留言信息</a></dt>
+						</dl>
+					</li>
+					<li>
+						<a class="menuFA" href="javascript:void(0)"><i class="iconfont icon-shangpin left"></i>求租广场<i class="iconfont icon-dajiantouyou right"></i></a>
+						<dl>
+							<dt><a href="javascript:void(0)" onclick="menuCAClick('/tgls/seek/seek_list.html',this)">求租信息</a></dt>
+						</dl>
+					</li>
+
+					<li>
+						<a class="menuFA" href="javascript:void(0)"><i class="iconfont icon-shangpin left"></i>个人信息管理<i class="iconfont icon-dajiantouyou right"></i></a>
+						<dl>
+							<dt><a href="javascript:void(0)" onclick="menuCAClick('/tgls/admin/updatePassword.html',this)">密码修改</a></dt>
+						</dl>
+					</li>
+		        </ul>
+		    </div>
+		</div>
+		<!-- 左侧菜单 - 结束 -->
+		
+		<div class="main">
+			<!-- 头部栏 - 开始 -->
+			<div class="frameTop">
+				<img class="jt" src="images/top_jt.png"/>
+				<div class="topMenu">
+					<ul>
+						<li><a id="dateTime" href="javascript:void(0)"></a></li>
+						<li><a href="javascript:void(0)" onclick="#"><i class="iconfont icon-yonghu1"></i><span class="usershow">管理员</span></a></li>
+						<li><a href="javascript:void(0)" onclick="logout()"><i class="iconfont icon-084tuichu"></i>退出系统</a></li>
+					</ul>
+				</div>
+			</div>
+			<!-- 头部栏 - 结束 -->
+			
+			<!-- 核心区域 - 开始 -->
+			<div class="frameMain">
+				<div class="title" id="frameMainTitle">
+					<span><i class="iconfont icon-xianshiqi"></i>首页</span>
+				</div>
+				<div class="con">
+					<!-- <iframe id="mainIframe" th:src="@{/qdAPI}" scrolling="no"></iframe> <div th:replace="tgls/qdAPI::isqdAPI"></div>-->
+					<iframe id="mainIframe" src="/tgls/qdAPI.html" scrolling="no"></iframe>				
+				</div>
+			</div>
+			<!-- 核心区域 - 结束 -->
+		</div>
+		<input type="hidden" id="userId" value="" >
+		<input type="hidden" id="movieId" value="" >
+		<script type="text/javascript">
+			$(function(){
+				$.ajax({
+					type: "post",
+					url: "/sension",
+					dataType: "json",
+					success: function(data){
+						if(data.code == 200){
+							$(".usershow").text(data.data.account);
+						}
+					}
+				})
+			})
+			function logout(){
+				$.ajax({
+					type: "post",
+					url: "/logout",
+					dataType: "json",
+					success: function(data){
+						console.log(data.msg);
+						window.location.href="/login";
+					}
+				})
+			}
+		</script>
+		<script>
+	        Date.prototype.format = function (fmt) {
+	            var o = {
+	                "y+": this.getFullYear, //年
+	                "M+": this.getMonth() + 1, //月份
+	                "d+": this.getDate(), //日
+	                "h+": this.getHours(), //小时
+	                "m+": this.getMinutes(), //分
+	                "s+": this.getSeconds() //秒
+	            };
+	            if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+	            for (var k in o)
+	                if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+	            return fmt;
+	        }
+	        setInterval("document.getElementById('dateTime').innerHTML = (new Date()).format('yyyy-MM-dd hh:mm:ss');", 1000);
+    	</script>
+	</body>
+
+</html>

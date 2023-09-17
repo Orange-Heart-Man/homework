@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1">
+
+		<!-- 公共样式 开始 -->
+		<link rel="stylesheet" type="text/css" href="../../css/base.css">
+		<link rel="stylesheet" type="text/css" href="../../css/iconfont.css">
+		<script type="text/javascript" src="../../framework/jquery-1.11.3.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="../../layui/css/layui.css">
+		<script type="text/javascript" src="../../layui/layui.js"></script>
+		<!-- 滚动条插件 -->
+		<link rel="stylesheet" type="text/css" href="../../css/jquery.mCustomScrollbar.css">
+		<script src="../../framework/jquery-ui-1.10.4.min.js"></script>
+		<script src="../../framework/jquery.mousewheel.min.js"></script>
+		<script src="../../framework/jquery.mCustomScrollbar.min.js"></script>
+		<script src="../../framework/cframe.js"></script><!-- 仅供所有子页面使用 -->
+		<!-- 公共样式 结束 -->
+		
+		<style>
+			.layui-table img {
+			    max-width: none;
+			}
+		</style>
+
+	</head>
+
+	<body>
+		<div class="cBody">
+			<div class="console">
+				<div class="layui-form-item">
+					<div class="layui-input-inline">
+						<input type="text" name="username" placeholder="输入租房人姓名" autocomplete="off" class="layui-input">
+					</div>
+					<button class="layui-btn" lay-submit lay-filter="formDemo">搜索</button>
+				</div>
+			</div>
+			
+			<table class="layui-table">
+				<thead>
+					<tr>
+						<th style="display: none;">编号</th>
+						<th>租房人姓名</th>
+						<th>房屋名称</th>
+						<th>下单时间</th>
+					</tr>
+				</thead>
+				<tbody>
+				</tbody>
+			</table>
+			<form id="deleteMovieForm" method="get"></form>
+			<!-- layUI 分页模块 -->
+			<div id="pages"></div>
+			<script>
+
+				layui.use('form', function() {
+					var form = layui.form;
+
+					//监听提交
+					form.on('submit(formDemo)', function(data) {
+						loadProductData();
+					});
+				});
+
+				var page = 1;
+
+				var limit = 10;
+
+				$(function(){
+					loadProductData();
+				});
+				
+				function loadProductData() {
+
+					var username = $("input[name='username']").val();
+
+					$("tbody").html("");
+
+					$.ajax({
+						type: "post",
+						url: "/order/list",
+						dataType: "json",
+						data:{
+							"username" : username,
+							"page" : page,
+							"limit" : limit
+						},
+						success:function(obj){
+							var html = "";
+							var data = obj.result;
+							for(var i=0;i<data.length;i++){
+								html += "<tr><td style='display: none;'>"+data[i].id+"</td><td>"+data[i].username+"</td><td>"+data[i].houseName+"</td><td>"+data[i].orderTime+"</td></tr>";
+							};
+
+							$("tbody").append(html);
+
+							if(page == 1){
+								layui.use('laypage', function() {
+									var laypage = layui.laypage;
+									//总页数大于页码总数
+									laypage.render({
+										elem: 'pages'
+										,count: obj.total
+										,limit: limit
+										,layout: ['count', 'prev', 'page', 'next']
+										,jump: function(obj,first){
+											if(!first){
+
+												page = obj.curr;
+
+												loadProductData();
+											}
+										}
+									});
+								});
+							}
+						}
+					});
+
+				}
+			</script>
+		</div>
+	</body>
+
+</html>

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1">
+
+    <!-- 公共样式 开始 -->
+    <link rel="stylesheet" type="text/css" href="../../css/base.css">
+    <link rel="stylesheet" type="text/css" href="../../css/iconfont.css">
+    <script type="text/javascript" src="../../framework/jquery-1.11.3.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../layui/css/layui.css">
+    <script type="text/javascript" src="../../layui/layui.js"></script>
+    <!-- 滚动条插件 -->
+    <link rel="stylesheet" type="text/css" href="../../css/jquery.mCustomScrollbar.css">
+    <script src="../../framework/jquery-ui-1.10.4.min.js"></script>
+    <script src="../../framework/jquery.mousewheel.min.js"></script>
+    <script src="../../framework/jquery.mCustomScrollbar.min.js"></script>
+    <script src="../../framework/cframe.js"></script><!-- 仅供所有子页面使用 -->
+    <!-- 公共样式 结束 -->
+
+    <style>
+        .layui-table img {
+            max-width: none;
+        }
+
+        #container{
+            width: 100%;
+            height: 700px;
+            margin: auto;
+        }
+    </style>
+
+</head>
+
+<body>
+<div class="cBody">
+    <div class="console">
+        <div class="layui-form-item">
+            <div class="layui-input-inline">
+                <input type="text" name="housePlot" placeholder="输入小区名称" autocomplete="off" class="layui-input">
+            </div>
+            <div class="layui-input-inline">
+                <select id="categoryId" name="categoryId" class="layui-select">
+                    <option value="">请选择房屋分类</option>
+                </select>
+            </div>
+            <div class="layui-input-inline">
+                <select id="houseArea" name="houseArea" class="layui-select">
+                    <option value="0">请选择房屋面积</option>
+                    <option value="1">50平方以下</option>
+                    <option value="2">50-70平方</option>
+                    <option value="3">70-110平方</option>
+                    <option value="4">110-150平方</option>
+                    <option value="5">150-200平方</option>
+                    <option value="6">200平方以上</option>
+                </select>
+            </div>
+            <div class="layui-input-inline">
+                <select id="housePrice" name="housePrice" class="layui-select">
+                    <option value="0">请选择房屋价格</option>
+                    <option value="1">300元以下</option>
+                    <option value="2">300-400</option>
+                    <option value="3">400-600</option>
+                    <option value="4">600-800</option>
+                    <option value="5">800-1000</option>
+                    <option value="6">1000元以上</option>
+                </select>
+            </div>
+            <button class="layui-btn" lay-submit lay-filter="formDemo">搜索</button>
+        </div>
+    </div>
+
+    <div id="container"></div>
+
+    <form id="deleteMovieForm" method="get"></form>
+    <!-- layUI 分页模块 -->
+    <div id="pages"></div>
+    <script>
+
+        layui.use('form', function () {
+            var form = layui.form;
+            //监听提交
+            form.on('submit(formDemo)', function (data) {
+                loadProductData();
+            });
+        });
+
+        //删除按钮
+        function book(obj) {
+            var movieid = $(obj).parents("tr").children("td").eq(0).text();
+
+            $.ajax({
+                type: "POST",//方法类型
+                dataType: "json",//预期服务器返回的数据类型
+                url: "/house/book/" + movieid,//url
+                success: function (result) {
+                    layer.closeAll();
+
+                    layer.msg("已预定");
+
+                    loadProductData();
+                }
+            })
+        }
+    </script>
+
+
+    <!--三、引入高德地图的js-->
+    <script type="text/javascript">
+        window._AMapSecurityConfig = {
+            securityJsCode: '102b14e1cd5e88a3c1fe9890f8dcee42',
+        }
+    </script>
+    <script type="text/javascript"
+            src="https://webapi.amap.com/maps?v=1.4.8&key=a08e2f54849139279dd7c960d42a5ea3&plugin=AMap.Geocoder,AMap.Autocomplete,AMap.PlaceSearch"></script>
+    <script type="text/javascript" src="https://cache.amap.com/lbs/static/addToolbar.js"></script>
+    <script type="text/javascript">
+        var map;
+
+        $(function () {
+            map = new AMap.Map("container", {
+                zoom: 15, //设置地图显示的缩放级别
+                center: [104.00, 30.56] //设置地图中心点坐标
+            });
+
+            $.ajax({
+                url: "/category/listAll",
+                type: "get",
+                dataType: "json",
+                success: function (result) {
+                    for (var i = 0; i < result.length; i++) {
+                        $("#categoryId").append('<option value="' + result[i].id + '">' + result[i].name + '</option>')
+                    }
+                }
+            })
+
+            loadProductData();
+        });
+
+        function loadProductData() {
+
+            var housePlot = $("input[name='housePlot']").val();
+            var categoryId = $("select[name='categoryId']").val();
+            var houseArea = $("#houseArea").val();
+            var housePrice = $("#housePrice").val();
+
+            $("tbody").html("");
+
+            $.ajax({
+                type: "post",
+                url: "/house/list_lease",
+                dataType: "json",
+                data: {
+                    "housePlot": housePlot,
+                    "categoryId": categoryId,
+                    "houseArea": houseArea,
+                    "housePrice": housePrice
+                },
+                success: function (obj) {
+                    map.clearMap();
+                    var markers=[];
+                    var html = "";
+                    var data = obj.result;
+                    for (var i = 0; i < data.length; i++) {
+                        var x = data[i].longitude;
+                        var y = data[i].latitude;
+                        var title = data[i].houseDesc;
+                        var id = data[i].id;
+
+                        var lineItem = [];
+                        lineItem.push(x);
+                        lineItem.push(y);
+
+                        var marker = new AMap.Marker({
+                            position: new AMap.LngLat(x, y), // 经纬度对象，也可以是经纬度构成的一维数组[116.39, 39.9]
+                            title: title,
+                            clickable : true,
+                            label: id
+                        });
+
+                        // 将创建的点标记添加到已有的地图实例：
+                        map.add(marker);
+                        markers.push(marker);
+                    }
+
+                    markerrender(markers);
+                }
+            });
+
+        }
+
+        //多个markers点击事件
+        function markerrender(markers) {
+            for (let i=0;i<markers.length;i++){
+                AMap.event.addListener(markers[i],"click",function (obj) {
+                    var id = obj.target.w.label;
+                    parent.$("#movieId").val(id);
+                    layui.use('layer', function() {
+                        var layer = layui.layer;
+                        //iframe层-父子操作
+                        updateFrame = parent.layer.open({
+                            title: "租房",
+                            type: 2,
+                            area: ['50%', '80%'],
+                            scrollbar: false,	//默认：true,默认允许浏览器滚动，如果设定scrollbar: false，则屏蔽
+                            //maxmin: false,
+                            content: '/tgls/house/house_book.html'
+                        });
+                    });
+
+                });
+            }
+        }
+    </script>
+</div>
+</body>
+
+</html>

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+
+    <!-- 公共样式 开始 -->
+    <link rel="stylesheet" type="text/css" href="../../css/base.css">
+    <link rel="stylesheet" type="text/css" href="../../css/iconfont.css">
+    <script type="text/javascript" src="../../framework/jquery-1.11.3.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../layui/css/layui.css">
+    <script type="text/javascript" src="../../layui/layui.js"></script>
+    <!-- 滚动条插件 -->
+    <link rel="stylesheet" type="text/css" href="../../css/jquery.mCustomScrollbar.css">
+    <script src="../../framework/jquery-ui-1.10.4.min.js"></script>
+    <script src="../../framework/jquery.mousewheel.min.js"></script>
+    <script src="../../framework/jquery.mCustomScrollbar.min.js"></script>
+    <script src="../../framework/cframe.js"></script><!-- 仅供所有子页面使用 -->
+    <!-- 公共样式 结束 -->
+
+    <style>
+        .layui-form-label {
+            width: 100px;
+        }
+
+        .layui-input-block {
+            margin-left: 130px;
+        }
+
+        .layui-form {
+            margin-right: 30%;
+        }
+
+        .showimg {
+            display: block;
+        }
+
+		#container{
+			width: 100%;
+			height: 500px;
+			margin: auto;
+		}
+    </style>
+
+</head>
+
+<body>
+<div class="cBody">
+    <form id="addForm">
+		<input id="longitude" name="longitude" type="hidden"/>
+		<input id="latitude" name="latitude" type="hidden"/>
+        <div class="layui-form-item">
+            <label class="layui-form-label">小区名称</label>
+            <div class="layui-input-block">
+                <input type="text" name="housePlot" id="housePlot" required autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">封面</label>
+            <div class="layui-upload-drag" id="goodsPic">
+                <input type="hidden" name="poster" id="posterpath">
+                <img id="poster" alt="房间图片上传" src="" style="width: 100px;display: none"/>
+                <i class="layui-icon showimg"></i>
+                <p class="showimg">点击上传，仅支持jpg/png格式图片</p>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">房屋分类</label>
+            <div class="layui-input-block">
+                <select id="categoryId" name="categoryId" class="layui-select" style="width: 300px;">
+
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">房屋描述</label>
+            <div class="layui-input-block">
+                <input type="text" name="houseDesc" id="houseDesc" required autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">房屋面积</label>
+            <div class="layui-input-block">
+                <input type="number" name="houseArea" id="houseArea" required autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">房屋楼层</label>
+            <div class="layui-input-block">
+                <input type="text" name="houseFloor" id="houseFloor" required autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">房屋类型</label>
+            <div class="layui-input-block">
+                <input type="text" name="houseType" id="houseType" required autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">房屋价格</label>
+            <div class="layui-input-block">
+                <input type="number" name="housePrice" id="housePrice" required autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">房屋地址</label>
+            <div class="layui-input-block">
+                <input type="text" name="houseAddress" id="houseAddress" required autocomplete="off"
+                       class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">联系电话</label>
+            <div class="layui-input-block">
+                <input type="text" name="houseTel" id="houseTel" required autocomplete="off" class="layui-input">
+            </div>
+        </div>
+
+        <div>
+            <input id="partyPlace" placeholder="请输入房源名称" class="layui-input"/>
+        </div>
+        <div id="container" style="margin: 0px 0px 50px;"></div>
+
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" type="button" onclick="addMovie()">立即提交</button>
+                <button type="reset" id="reset" class="layui-btn layui-btn-primary">重置</button>
+            </div>
+        </div>
+    </form>
+
+
+    <script>
+        layui.use(['upload', 'form'], function () {
+            var form = layui.form;
+            var upload = layui.upload;
+            var layer = layui.layer;
+        });
+
+        layui.use(['upload','form'], function() {
+            var form = layui.form;
+            var upload = layui.upload;
+            var layer = layui.layer;
+            //拖拽上传
+            upload.render({
+                elem: '#goodsPic',
+                url: '/house/upload',
+                auto: true,
+                progress: function(n, elem){
+                    var percent = n + '%';
+                    elem.progress('demo', percent);
+                },
+                done: function(res, index, upload) {
+                    if(res.code==0){
+                        $("#posterpath").val(res.data);//收到返回的图片地址
+                        $("#poster").attr("src",res.data);
+                        $("#poster").show();
+                        $(".showimg").hide();
+                        layer.msg("图片已经上传到服务器");
+                    }
+                    layer.closeAll('loading');
+                }
+            });
+        });
+
+        $(function () {
+            $.ajax({
+                url: "/category/listAll",
+                type: "get",
+                dataType: "json",
+                success: function (result) {
+                    for (var i = 0; i < result.length; i++) {
+                        $("#categoryId").append('<option value="' + result[i].id + '">' + result[i].name + '</option>')
+                    }
+                }
+            })
+        })
+
+        function addMovie() {
+			var longitude = $("#longitude").val();
+
+			if(longitude.length == 0){
+				layer.msg("请选择房屋位置坐标");
+				return;
+			}
+
+            $.ajax({
+                type: "POST",//方法类型
+                dataType: "json",//预期服务器返回的数据类型
+                url: "/house/add",//url
+                data: $('#addForm').serialize(),
+                success: function (result) {
+                    layer.msg("信息已添加");
+
+                    $("#reset").click();
+                }
+            })
+        }
+    </script>
+
+</div>
+
+
+<!--三、引入高德地图的js-->
+<script type="text/javascript">
+    window._AMapSecurityConfig = {
+        securityJsCode: '102b14e1cd5e88a3c1fe9890f8dcee42',
+    }
+</script>
+<script type="text/javascript"
+        src="https://webapi.amap.com/maps?v=1.4.8&key=a08e2f54849139279dd7c960d42a5ea3&plugin=AMap.Geocoder,AMap.Autocomplete,AMap.PlaceSearch"></script>
+<script type="text/javascript" src="https://cache.amap.com/lbs/static/addToolbar.js"></script>
+<script type="text/javascript">
+    var map;
+
+    //初始化地图插件
+    window.onload = function () {
+        map = new AMap.Map("container", {
+            zoom: 15, //设置地图显示的缩放级别
+            center: [104.00, 30.56] //设置地图中心点坐标
+        });
+
+        AMap.event.addListener(map, 'click', getLnglat); //点击事件
+
+        var autoOptions = {
+            input: "partyPlace"//前端搜索框
+        };
+        var auto = new AMap.Autocomplete(autoOptions);
+        var placeSearch = new AMap.PlaceSearch({
+            map: map
+        });
+        AMap.event.addListener(auto, "select", select);//注册监听，当选中某条记录时会触发
+
+        function select(e) {
+            placeSearch.setCity(e.poi.adcode);
+            placeSearch.search(e.poi.name);  //关键字查询查询
+        }
+    }
+
+    //鼠标点击，获取经纬度坐标
+    function getLnglat(e) {
+        map.clearMap();
+
+        var x = e.lnglat.getLng();
+        var y = e.lnglat.getLat();
+
+        $("#longitude").val(x);
+        $("#latitude").val(y);
+
+        // 创建一个 Marker 实例：（标记点）
+        var marker = new AMap.Marker({
+            position: new AMap.LngLat(x, y), // 经纬度对象，也可以是经纬度构成的一维数组[116.39, 39.9]
+            title: "位置标题"
+        });
+
+        // 将创建的点标记添加到已有的地图实例：
+        map.add(marker);
+    }
+
+
+</script>
+</body>
+
+</html>

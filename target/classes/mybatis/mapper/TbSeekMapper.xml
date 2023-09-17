@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.house.springboot.mapper.TbSeekMapper">
+    
+    <resultMap type="com.house.springboot.bean.TbSeek" id="TbSeekResult">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="userName"    column="user_name"    />
+        <result property="phone"    column="phone"    />
+        <result property="require"    column="requires"    />
+        <result property="price"    column="price"    />
+        <result property="submitdate"    column="submitdate"    />
+    </resultMap>
+
+    <sql id="selectTbSeekVo">
+        select id, user_id, user_name, phone, requires, price, submitdate from tb_seek
+    </sql>
+
+    <select id="selectTbSeekList" parameterType="com.house.springboot.bean.TbSeek" resultMap="TbSeekResult">
+        <include refid="selectTbSeekVo"/>
+        <where>  
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+            <if test="phone != null  and phone != ''"> and phone = #{phone}</if>
+            <if test="require != null  and require != ''"> and require = #{require}</if>
+            <if test="price != null  and price != ''"> and price = #{price}</if>
+            <if test="submitdate != null "> and submitdate = #{submitdate}</if>
+        </where>
+    </select>
+    
+    <select id="selectTbSeekById" parameterType="Long" resultMap="TbSeekResult">
+        <include refid="selectTbSeekVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertTbSeek" parameterType="com.house.springboot.bean.TbSeek" useGeneratedKeys="true" keyProperty="id">
+        insert into tb_seek
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="userName != null">user_name,</if>
+            <if test="phone != null">phone,</if>
+            <if test="require != null">requires,</if>
+            <if test="price != null">price,</if>
+            <if test="submitdate != null">submitdate,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="userName != null">#{userName},</if>
+            <if test="phone != null">#{phone},</if>
+            <if test="require != null">#{require},</if>
+            <if test="price != null">#{price},</if>
+            <if test="submitdate != null">#{submitdate},</if>
+         </trim>
+    </insert>
+
+    <update id="updateTbSeek" parameterType="com.house.springboot.bean.TbSeek">
+        update tb_seek
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="userName != null">user_name = #{userName},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="require != null">requires = #{require},</if>
+            <if test="price != null">price = #{price},</if>
+            <if test="submitdate != null">submitdate = #{submitdate},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteTbSeekById" parameterType="Long">
+        delete from tb_seek where id = #{id}
+    </delete>
+
+    <delete id="deleteTbSeekByIds" parameterType="String">
+        delete from tb_seek where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>
